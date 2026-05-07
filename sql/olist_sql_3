@@ -1,0 +1,116 @@
+USE WAREHOUSE OLIST_WH;
+USE DATABASE PORTFOLIO_PROJECT_DB;
+
+--Business Intelligence Questions 
+
+--1. Monthly/Annual Revenue and Order Count
+SELECT
+d.year,
+d.month,
+SUM(f.price) AS revenue,
+COUNT(DISTINCT f.order_id) AS orders
+FROM FACT_ORDERS f
+JOIN DIM_DATE d
+ON DATE(f.order_purchase_timestamp) = d.date
+GROUP BY d.year, d.month
+ORDER BY d.year, d.month;
+
+--2. Revenue by state
+SELECT
+c.customer_state,
+SUM(f.price) AS revenue
+FROM FACT_ORDERS f
+JOIN DIM_CUSTOMER c
+ON f.customer_id = c.customer_id
+GROUP BY c.customer_state
+ORDER BY revenue DESC
+LIMIT 10;
+
+--3. Revenue by city
+SELECT
+c.customer_city,
+c.customer_state,
+SUM(f.price) AS revenue
+FROM FACT_ORDERS f
+JOIN DIM_CUSTOMER c
+ON f.customer_id = c.customer_id
+GROUP BY c.customer_city, c.customer_state
+ORDER BY revenue DESC
+LIMIT 10;
+
+--4. Order count by state
+SELECT
+c.customer_state,
+COUNT(DISTINCT f.order_id) AS order_count
+FROM FACT_ORDERS f
+JOIN DIM_CUSTOMER c
+ON f.customer_id = c.customer_id
+GROUP BY c.customer_state
+ORDER BY order_count DESC
+LIMIT 10;
+
+--5. Order count by city
+SELECT
+c.customer_city,
+c.customer_state,
+COUNT(f.order_id) AS order_count
+FROM FACT_ORDERS f
+JOIN DIM_CUSTOMER c
+ON f.customer_id = c.customer_id
+GROUP BY c.customer_city, c.customer_state
+ORDER BY order_count DESC
+LIMIT 10;
+
+--6. Revenue by product category
+SELECT
+p.product_category_name,
+SUM(f.price) AS revenue
+FROM FACT_ORDERS f
+JOIN DIM_PRODUCTS p
+ON f.product_id = p.product_id
+GROUP BY p.product_category_name
+ORDER BY revenue DESC
+LIMIT 10;
+
+--7. Order count by product category
+SELECT
+p.product_category_name,
+COUNT(f.order_id) AS order_count
+FROM FACT_ORDERS f
+JOIN DIM_PRODUCTS p
+ON f.product_id = p.product_id
+GROUP BY p.product_category_name
+ORDER BY order_count DESC
+LIMIT 10;
+
+--8. Revenue by seller
+SELECT
+s.seller_id,
+SUM(f.price) AS revenue
+FROM FACT_ORDERS f
+JOIN DIM_SELLER s
+ON f.seller_id = s.seller_id
+GROUP BY s.seller_id
+ORDER BY revenue DESC
+LIMIT 10;
+
+--9. Average order value 
+SELECT
+SUM(price) / COUNT(DISTINCT order_id) AS avg_order_value
+FROM FACT_ORDERS;
+
+--10. Repeating Customers
+SELECT
+c.customer_unique_id,
+c.customer_city,
+COUNT(DISTINCT f.order_id) AS order_count
+FROM FACT_ORDERS f
+JOIN CUSTOMERS c
+ON f.customer_id = c.customer_id
+GROUP BY c.customer_unique_id, c.customer_city
+HAVING COUNT(DISTINCT f.order_id) > 1
+ORDER BY order_count DESC;
+
+
+
+
