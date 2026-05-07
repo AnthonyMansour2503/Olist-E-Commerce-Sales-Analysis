@@ -1,0 +1,55 @@
+USE WAREHOUSE OLIST_WH;
+USE DATABASE PORTFOLIO_PROJECT_DB;
+
+--First, a cleaned version of the products table is made that fixes null values for the unknown product category names
+CREATE OR REPLACE TABLE CLEAN_PRODUCTS AS
+SELECT
+product_id,
+COALESCE(product_category_name, 'Unknown') AS product_category_name
+FROM PRODUCTS;
+
+--Here, a star schema is established with the fact and dimension tables
+
+CREATE OR REPLACE TABLE FACT_ORDERS AS
+SELECT
+o.order_id,
+o.customer_id,
+i.product_id,
+i.seller_id,
+o.order_purchase_timestamp,
+DATE(o.order_purchase_timestamp) AS purchase_date,
+i.price,
+i.freight_value
+FROM orders o
+JOIN order_items i
+ON o.order_id = i.order_id;
+
+CREATE OR REPLACE TABLE DIM_CUSTOMER AS
+SELECT DISTINCT
+customer_id,
+customer_city,
+customer_state
+FROM CUSTOMERS;
+
+CREATE OR REPLACE TABLE DIM_SELLER AS
+SELECT DISTINCT
+seller_id,
+seller_city,
+seller_state
+FROM SELLERS;
+
+CREATE OR REPLACE TABLE DIM_PRODUCTS AS
+SELECT DISTINCT
+product_id,
+product_category_name
+FROM CLEAN_PRODUCTS;
+
+
+CREATE OR REPLACE TABLE DIM_DATE AS
+SELECT DISTINCT
+DATE(ORDER_PURCHASE_TIMESTAMP) AS date,
+YEAR(ORDER_PURCHASE_TIMESTAMP) AS year,
+MONTH(ORDER_PURCHASE_TIMESTAMP) AS month,
+DAY(ORDER_PURCHASE_TIMESTAMP) AS day
+FROM ORDERS;
+
