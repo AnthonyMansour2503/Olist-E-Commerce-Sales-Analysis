@@ -4,6 +4,9 @@
 This project is an end-to-end business intelligence and analytics solution built using Snowflake, SQL, and Power BI. 
 The project analyzes the Brazilian Olist e-commerce dataset to uncover insights related to sales performance, product categories, and geographic trends.
 
+## Dataset Link
+https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
+
 ## Tools & Technologies
 - Snowflake
 - SQL
